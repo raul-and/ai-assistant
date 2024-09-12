@@ -3,9 +3,8 @@ package raul_and.ai_assistant;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.ResponseEntity;
 import raul_and.ai_assistant.api.AIAService;
-import raul_and.ai_assistant.ui.TerminalMenu;
+import raul_and.ai_assistant.ui.TerminalControl;
 
 @SpringBootApplication
 public class AiAssistantApplication {
@@ -16,10 +15,10 @@ public class AiAssistantApplication {
 
 		AIAService aiaService = context.getBean(AIAService.class);
 
-		TerminalMenu terminalMenu = new TerminalMenu(aiaService);
+		TerminalControl terminalControl = new TerminalControl(aiaService);
 
 		try {
-			terminalMenu.run();
+			terminalControl.run();
 		}
 		catch (Exception e){
 			e.printStackTrace();

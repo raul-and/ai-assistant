@@ -1,7 +1,5 @@
 package raul_and.ai_assistant.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -132,16 +130,5 @@ public class AIAService {
 
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);
         return restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
-    }
-
-    private String extractJsonParam(String jsonResponse, String fieldName) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            JsonNode rootNode = objectMapper.readTree(jsonResponse);
-            return rootNode.path(fieldName).asText();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 }

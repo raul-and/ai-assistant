@@ -11,20 +11,22 @@ import raul_and.ai_assistant.api.AIAService;
 import java.util.Scanner;
 
 @Component
-public class TerminalMenu implements CommandLineRunner {
+public class TerminalControl implements CommandLineRunner {
 
     private final AIAService aiaService;
 
     @Value("${assistant.id}")
     private String assistantId;
 
-    private String threadId = "";
+    @Value("${thread.id}")
+    private String threadId;
+
     private String userQuery = "";
     private String runId = "";
-
+    private String runStatus = "";
     private int numMessages = 0;
 
-    public TerminalMenu(AIAService aiaService) { this.aiaService = aiaService; }
+    public TerminalControl(AIAService aiaService) { this.aiaService = aiaService; }
 
     private String getAssistantId() { return assistantId; }
 
@@ -42,26 +44,32 @@ public class TerminalMenu implements CommandLineRunner {
 
     private void setRunId(String runId) { this.runId = runId; }
 
+    private String getRunStatus() { return runStatus; }
+
+    private void setRunStatus(String runStatus) { this.runStatus = runStatus; }
+
     @Override
     public void run(String... args) throws Exception {
         ResponseEntity<String> response;
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
+
             System.out.println("\nHello!! I'm your helpful AI assistant. How can I help you?");
             System.out.println("----------------------------------------------------------\n");
-            System.out.println("1. Create Assistant");
-            System.out.println("2. Create Thread");
-            System.out.println("3. Add Message to Thread");
-            System.out.println("4. Create Run");
-            System.out.println("5. Poll Run Status");
-            System.out.println("6. Get Thread Messages");
-            System.out.println("7. Exit\n");
 
             System.out.printf("Current assistant id: %s\n", getAssistantId());
             System.out.printf("Current thread id: %s\n", getThreadId());
-            System.out.printf("Current num of messages on the thread: %d\n", numMessages);
             System.out.printf("Current run id: %s\n", getRunId());
+            System.out.printf("Current run status: %s\n\n", getRunStatus());
+
+            System.out.println("1. Create Assistant");
+            System.out.println("2. Create a new Thread");
+            System.out.println("3. Add Message to Thread");
+            System.out.println("4. Create Run");
+            System.out.println("5. Refresh Run Status");
+            System.out.println("6. Get Thread Messages");
+            System.out.println("7. Exit\n");
 
             String choice = scanner.nextLine();
 
@@ -106,6 +114,11 @@ public class TerminalMenu implements CommandLineRunner {
                         break;
                     }
 
+                    if (numMessages == 0){
+                        System.out.println("ERROR: You need to add a message to the thread first.");
+                        break;
+                    }
+
                     System.out.println("Enter the run instructions: ");
                     setUserQuery(scanner.nextLine());
 
@@ -121,14 +134,12 @@ public class TerminalMenu implements CommandLineRunner {
                         break;
                     }
 
-                    if (runId.isEmpty()){
+                    if (getRunId().isEmpty()){
                         System.out.println("ERROR: You need to create a run first.");
                         break;
                     }
 
-                    String status = aiaService.pollRunStatus(getThreadId(), getRunId());
-
-                    System.out.println("Run status: " + status);
+                    setRunStatus(aiaService.pollRunStatus(getThreadId(), getRunId()));
                     break;
 
                 case "6":
@@ -139,7 +150,7 @@ public class TerminalMenu implements CommandLineRunner {
 
                     response = aiaService.getThreadMessages(threadId);
 
-                    setUserQuery(extractJsonValue(response.getBody(), "value"));
+                    setUserQuery(extractJsonValue(response.getBody(), "getThreadMessages"));
 
                     System.out.printf("Messages: %s\n", getUserQuery());
                     break;
@@ -157,10 +168,24 @@ public class TerminalMenu implements CommandLineRunner {
     private String extractJsonValue(String jsonResponse, String... fieldNames) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            JsonNode currentNode = objectMapper.readTree(jsonResponse);
+            JsonNode rootNode = objectMapper.readTree(jsonResponse);
+
+            if (fieldNames.length == 1 && "getThreadMessages".equals(fieldNames[0])) {
+                JsonNode dataArray = rootNode.path("data");
+
+                for (JsonNode messageNode : dataArray)
+                    if ("assistant".equals(messageNode.path("role").asText()))
+                        return messageNode.path("content").get(0).path("text").path("value").asText();
+
+
+                return null;
+            }
+
+            JsonNode currentNode = rootNode;
             for (String fieldName : fieldNames) {
                 currentNode = currentNode.path(fieldName);
             }
+
             return currentNode.asText();
         } catch (Exception e) {
             e.printStackTrace();
