@@ -1,5 +1,7 @@
 package raul_and.ai_assistant.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -20,17 +22,12 @@ public class AIAService {
     @Value("${open.api.url}")
     private String openaiApiUrl;
 
-    @Value("${assistant.id}")
-    private String assistantId;
-
     private RestTemplate restTemplate;
 
-    public AIAService(RestTemplate restTemplate){
-        this.restTemplate = restTemplate;
-    }
+    public AIAService(RestTemplate restTemplate){ this.restTemplate = restTemplate; }
 
     //Create an AI Assistant
-    public ResponseEntity<String> createAssistant(){
+    public ResponseEntity<String> createAssistant(String userQuery, String role){
         String url = openaiApiUrl + "/v1/assistants";
 
         HttpHeaders headers = new HttpHeaders();
@@ -39,8 +36,8 @@ public class AIAService {
         headers.set("OpenAI-Beta", "assistants=v2");
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("instructions", "You are a personal math tutor. Write and run code to answer math questions.");
-        requestBody.put("name", "Math Tutor");
+        requestBody.put("instructions", userQuery);
+        requestBody.put("name", role);
         requestBody.put("tools", new Object[]{new HashMap<String, Object>() {{
             put("type", "code_interpreter");
         }}});
@@ -135,5 +132,16 @@ public class AIAService {
 
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);
         return restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+    }
+
+    private String extractJsonParam(String jsonResponse, String fieldName) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            JsonNode rootNode = objectMapper.readTree(jsonResponse);
+            return rootNode.path(fieldName).asText();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

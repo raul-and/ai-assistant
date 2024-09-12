@@ -2,12 +2,10 @@ package raul_and.ai_assistant.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/api/ai-assistant")
 public class AIAController {
 
     private final AIAService aiaService;
@@ -18,8 +16,8 @@ public class AIAController {
     }
 
     @PostMapping("/createAssistant")
-    public ResponseEntity<String> createAsisstant() {
-        return aiaService.createAssistant();
+    public ResponseEntity<String> createAssistant(@RequestParam String instruction, @RequestParam String role) {
+        return aiaService.createAssistant(instruction, role);
     }
 
     @PostMapping("/createThread")
