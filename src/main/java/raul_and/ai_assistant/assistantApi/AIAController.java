@@ -1,11 +1,11 @@
-package raul_and.ai_assistant.api;
+package raul_and.ai_assistant.assistantApi;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/ai-assistant")
+@RequestMapping("/ai-assistant")
 public class AIAController {
 
     private final AIAService aiaService;

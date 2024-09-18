@@ -3,8 +3,9 @@ package raul_and.ai_assistant;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import raul_and.ai_assistant.api.AIAService;
-import raul_and.ai_assistant.ui.TerminalControl;
+import raul_and.ai_assistant.assistantApi.AIAService;
+import raul_and.ai_assistant.telegramApi.TelegramService;
+import raul_and.ai_assistant.ui.TelegramUI;
 
 @SpringBootApplication
 public class AiAssistantApplication {
@@ -13,12 +14,13 @@ public class AiAssistantApplication {
 
 		ApplicationContext context = SpringApplication.run(AiAssistantApplication.class, args);
 
+		TelegramService telegramService = context.getBean(TelegramService.class);
 		AIAService aiaService = context.getBean(AIAService.class);
 
-		TerminalControl terminalControl = new TerminalControl(aiaService);
+		TelegramUI telegramUI = new TelegramUI(telegramService, aiaService);
 
 		try {
-			terminalControl.run();
+			telegramUI.run();
 		}
 		catch (Exception e){
 			e.printStackTrace();

@@ -1,4 +1,4 @@
-package raul_and.ai_assistant.api;
+package raul_and.ai_assistant.assistantApi;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -20,11 +20,22 @@ public class AIAService {
     @Value("${open.api.url}")
     private String openaiApiUrl;
 
+    @Value("${assistant.id}")
+    private String assistantId;
+
+    @Value("${thread.id}")
+    private String threadId;
+
     private RestTemplate restTemplate;
 
     public AIAService(RestTemplate restTemplate){ this.restTemplate = restTemplate; }
 
-    //Create an AI Assistant
+    public String getThreadId() { return threadId; }
+    public void setThreadId(String threadId) { this.threadId = threadId; }
+
+    public String getAssistantId() { return assistantId; }
+    public void setAssistantId(String assistantId) { this.assistantId = assistantId; }
+
     public ResponseEntity<String> createAssistant(String userQuery, String role){
         String url = openaiApiUrl + "/v1/assistants";
 
@@ -45,7 +56,6 @@ public class AIAService {
         return restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
     }
 
-    //Create a Thread
     public ResponseEntity<String> createThread() {
         String url = openaiApiUrl + "/v1/threads";
 
@@ -58,7 +68,6 @@ public class AIAService {
         return restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
     }
 
-    //Add a Message to the Thread
     public ResponseEntity<String> addMessageToThread(String threadId, String messageContent){
         String url = openaiApiUrl + "/v1/threads/" + threadId + "/messages";
 
@@ -75,7 +84,6 @@ public class AIAService {
         return restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
     }
 
-    //Create a Run
     public ResponseEntity<String> createRun(String threadId, String assistantId, String instructions){
         String url = openaiApiUrl + "/v1/threads/" + threadId + "/runs";
 
@@ -92,7 +100,6 @@ public class AIAService {
         return restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
     }
 
-    // Poll the Run Status
     public String pollRunStatus(String threadId, String runId) throws InterruptedException {
         String url = openaiApiUrl + "/v1/threads/" + threadId + "/runs/" + runId;
 
@@ -112,14 +119,13 @@ public class AIAService {
             }
 
             if ("in_progress".equals(status)) {
-                Thread.sleep(2000); // wait for 2 seconds before polling again
+                Thread.sleep(2000);
             }
         }
 
         return status;
     }
 
-    // Retrieve Assistant Messages
     public ResponseEntity<String> getThreadMessages(String threadId) {
         String url = openaiApiUrl + "/v1/threads/" + threadId + "/messages";
 

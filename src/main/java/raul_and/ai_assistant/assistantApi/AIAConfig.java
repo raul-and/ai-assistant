@@ -1,4 +1,4 @@
-package raul_and.ai_assistant.api;
+package raul_and.ai_assistant.assistantApi;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
