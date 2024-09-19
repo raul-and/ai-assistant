@@ -39,6 +39,8 @@ public class TelegramService {
     public String getSender() { return sender; }
     public void setSender(String sender) { this.sender = sender; }
 
+    public String getNgrokDomain() { return ngrokDomain; }
+
     public ResponseEntity<String> setWebhook(){
         String url = TELEGRAM_API_URL + botToken + "/setWebhook?url=" + ngrokDomain + "/telegram/webhook";
 
