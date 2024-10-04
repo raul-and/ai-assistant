@@ -5,12 +5,15 @@ In order for the bot to work, it needs to be created an application.properties i
 The following properties need to be added on the file:
 
 open.api.key="Your OpenAI api key"
+
 open.api.url=https://api.openai.com
 
 assistant.id="Your OpenAI Assistant ID"
+
 thread.id="Your OpenAI Thread ID"
 
 bot.username="Your Telegram Bot Username"
+
 bot.token="Your Telegram Bot Token"
 
 ngrok.domain="Your NGROK domain Ex: https://complete-car-cat.ngrok-free.app" 
